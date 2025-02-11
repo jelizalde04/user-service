@@ -9,30 +9,30 @@ def update_user(user_id: int, username: str = None, email: str = None, password:
     update_fields = []
     params = []
 
-    if username is not None:
-        update_fields.append("username = %s")
+    if username:
+        update_fields.append("\"username\" = %s")  # Corrección de nombres de columna
         params.append(username)
 
-    if email is not None:
-        update_fields.append("email = %s")
+    if email:
+        update_fields.append("\"email\" = %s")  # Corrección de nombres de columna
         params.append(email)
 
-    if password is not None:
-        update_fields.append("password = %s")
+    if password:
+        update_fields.append("\"password\" = %s")  # Corrección de nombres de columna
         params.append(password)
 
     if not update_fields:
-        return {"error": "No se enviaron campos para actualizar"}
+        return {"error": "No se enviaron campos válidos para actualizar"}
 
-    # Agregar la actualización de updatedAt
-    update_fields.append("updatedAt = %s")
+    # Agregar updatedAt para registrar la actualización con comillas dobles
+    update_fields.append("\"updatedAt\" = %s")
     params.append(datetime.datetime.utcnow())
 
     # Agregar el ID del usuario como parámetro final
     params.append(user_id)
 
-    query = f"UPDATE \"Users\" SET {', '.join(update_fields)} WHERE id = %s RETURNING id, username, email, updatedAt;"
-    
+    query = f'UPDATE "Users" SET {", ".join(update_fields)} WHERE "id" = %s RETURNING "id", "username", "email", "updatedAt";'
+
     try:
         cursor.execute(query, params)
         updated_user = cursor.fetchone()
