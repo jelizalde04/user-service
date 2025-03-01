@@ -1,0 +1,11 @@
+# 📌 Create User Microservice
+
+This microservice is responsible for creating users in the **User Management Service**.  
+It is developed in **Go** and follows the **SOLID, KISS, DRY, YAGNI** principles.  
+The service exposes a **REST API** for user creation and is containerized using **Docker**.
+
+---
+
+## 🚀 Features
+- Create users in the PostgreSQL database.
+- REST API implementation.
