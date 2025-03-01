@@ -1,0 +1,19 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "User Management API"
+  },
+  "paths": {
+    "/users": {
+      "get": {
+        "summary": "Get all users",
+        "responses": {
+          "200": {
+            "description": "List of users"
+          }
+        }
+      }
+    }
+  }
+}
