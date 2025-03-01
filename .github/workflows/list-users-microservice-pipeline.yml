@@ -1,0 +1,38 @@
+name: List Users Microservice Pipeline
+
+on:
+  push:
+    paths:
+      - 'list-users-microservice/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.20'
+
+      - name: Install Dependencies
+        run: cd list-users-microservice && go mod tidy
+
+      - name: Run Tests
+        run: cd list-users-microservice && go test ./...
+
+      - name: Build
+        run: cd list-users-microservice && go build -o main .
+
+      - name: Build Docker Image
+        run: |
+          cd list-users-microservice
+          docker build -t list-users-microservice .
+
+      - name: Push to Docker Hub
+        run: |
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+          docker tag list-users-microservice ${{ secrets.DOCKER_USERNAME }}/list-users-microservice:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/list-users-microservice:latest
