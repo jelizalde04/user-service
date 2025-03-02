@@ -1,20 +1,27 @@
-# Imagen base de Go
-FROM golang:1.20
+# Use Golang official image
+FROM golang:1.19-alpine
 
-# Establecer directorio de trabajo
+# Set environment variables
+ENV GO111MODULE=on \
+    CGO_ENABLED=0 \
+    GOOS=linux \
+    GOARCH=amd64
+
+# Create a directory for the app
 WORKDIR /app
 
-# Copiar archivos
+# Copy the Go modules
+COPY go.mod go.sum ./
+RUN go mod download
+
+# Copy the source code
 COPY . .
 
-# Descargar dependencias
-RUN go mod tidy
-
-# Compilar el código
+# Build the Go application
 RUN go build -o main .
 
-# Exponer el puerto
+# Expose the application port
 EXPOSE 2002
 
-# Ejecutar el servicio
+# Command to run the executable
 CMD ["./main"]

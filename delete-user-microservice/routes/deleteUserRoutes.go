@@ -1,11 +1,18 @@
 package routes
 
 import (
-    "user-microservice/controllers"
+	"net/http"
 
-    "github.com/gorilla/mux"
+	"delete-user-microservice/controllers"
+	"delete-user-microservice/middleware"
+
+	"github.com/gorilla/mux"
 )
 
-func RegisterUserRoutes(router *mux.Router, controller *controllers.UserController) {
-    router.HandleFunc("/users/{id}", controller.DeleteUserHandler).Methods("DELETE")
+// RegisterUserRoutes registers the user-related endpoints
+func RegisterUserRoutes(router *mux.Router) {
+	router.HandleFunc("/users/{id}", controllers.DeleteUserHandler).Methods("DELETE")
+
+	// Secure route with JWT authentication
+	router.Handle("/secure/users/{id}", middleware.AuthMiddleware(http.HandlerFunc(controllers.DeleteUserHandler))).Methods("DELETE")
 }

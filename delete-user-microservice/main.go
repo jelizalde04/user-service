@@ -1,29 +1,45 @@
 package main
 
 import (
-    "fmt"
-    "log"
-    "net/http"
-    "os"
-    "user-microservice/controllers"
-    "user-microservice/routes"
-    "user-microservice/services"
+	"fmt"
+	"log"
+	"net/http"
+	"os"
 
-    "github.com/gorilla/mux"
-    "github.com/joho/godotenv"
+	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
+
+	"delete-user-microservice/controllers"
+	"delete-user-microservice/middleware"
+	"delete-user-microservice/routes"
 )
 
 func main() {
-    godotenv.Load()
-    InitDB()
+	// Load environment variables from .env file
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 
-    userService := services.NewUserService(DB)
-    userController := controllers.NewUserController(userService)
+	// Initialize the router
+	r := mux.NewRouter()
 
-    router := mux.NewRouter()
-    routes.RegisterUserRoutes(router, userController)
+	// Enable CORS
+	r.Use(middleware.CORSHandler)
 
-    port := os.Getenv("PORT")
-    fmt.Println("Servidor corriendo en el puerto:", port)
-    log.Fatal(http.ListenAndServe(":"+port, router))
+	// User routes
+	routes.RegisterUserRoutes(r)
+
+	// Swagger documentation route
+	r.PathPrefix("/swagger/").Handler(http.StripPrefix("/swagger/", http.FileServer(http.Dir("./swagger/"))))
+
+	// Start server
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "2002"
+	}
+
+	fmt.Println("Delete User Microservice is running on port:", port)
+	log.Fatal(http.ListenAndServe(":"+port, r))
 }
+
