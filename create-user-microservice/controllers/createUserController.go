@@ -1,36 +1,32 @@
 package controllers
 
 import (
-    "encoding/json"
-    "net/http"
-    "user-microservice/models"
-    "user-microservice/services"
+	"encoding/json"
+	"net/http"
+
+	"create-user-microservice/models"
+	"create-user-microservice/services"
+	"create-user-microservice/utils"
 )
 
-type UserController struct {
-    Service *services.UserService
-}
+// CreateUserHandler handles user creation requests
+func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
+	var user models.User
+	err := json.NewDecoder(r.Body).Decode(&user)
+	if err != nil {
+		http.Error(w, "Invalid input", http.StatusBadRequest)
+		return
+	}
 
-func NewUserController(service *services.UserService) *UserController {
-    return &UserController{Service: service}
-}
+	// Encrypt sensitive data
+	user.Password = utils.Encrypt(user.Password)
 
-func (c *UserController) CreateUserHandler(w http.ResponseWriter, r *http.Request) {
-    var user models.User
-    if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
-        http.Error(w, "Solicitud inválida", http.StatusBadRequest)
-        return
-    }
+	// Call user service
+	createdUser, err := services.CreateUser(user)
+	if err != nil {
+		http.Error(w, "Error creating user", http.StatusInternalServerError)
+		return
+	}
 
-    userID, err := c.Service.CreateUser(user)
-    if err != nil {
-        http.Error(w, "Error al crear usuario", http.StatusInternalServerError)
-        return
-    }
-
-    w.WriteHeader(http.StatusCreated)
-    json.NewEncoder(w).Encode(map[string]interface{}{
-        "message": "Usuario creado exitosamente",
-        "user_id": userID,
-    })
+	json.NewEncoder(w).Encode(createdUser)
 }
