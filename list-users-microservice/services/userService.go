@@ -1,33 +1,23 @@
 package services
 
 import (
-    "database/sql"
-    "user-microservice/models"
+	"errors"
+	"log"
+
+	"list-users-microservice/models"
 )
 
-type UserService struct {
-    DB *sql.DB
+// Mock user database
+var users = []models.User{
+	{ID: "1", Name: "John Doe", Email: "john@example.com"},
+	{ID: "2", Name: "Jane Doe", Email: "jane@example.com"},
 }
 
-func NewUserService(db *sql.DB) *UserService {
-    return &UserService{DB: db}
-}
-
-func (s *UserService) GetAllUsers() ([]models.User, error) {
-    rows, err := s.DB.Query("SELECT id, name, email FROM users")
-    if err != nil {
-        return nil, err
-    }
-    defer rows.Close()
-
-    var users []models.User
-    for rows.Next() {
-        var user models.User
-        if err := rows.Scan(&user.ID, &user.Name, &user.Email); err != nil {
-            return nil, err
-        }
-        users = append(users, user)
-    }
-
-    return users, nil
+// GetAllUsers returns a list of all users
+func GetAllUsers() ([]models.User, error) {
+	if len(users) == 0 {
+		return nil, errors.New("No users found")
+	}
+	log.Println("Users retrieved")
+	return users, nil
 }

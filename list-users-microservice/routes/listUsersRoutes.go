@@ -1,11 +1,18 @@
 package routes
 
 import (
-    "user-microservice/controllers"
+	"net/http"
 
-    "github.com/gorilla/mux"
+	"list-users-microservice/controllers"
+	"list-users-microservice/middleware"
+
+	"github.com/gorilla/mux"
 )
 
-func RegisterUserRoutes(router *mux.Router, controller *controllers.UserController) {
-    router.HandleFunc("/users", controller.GetUsersHandler).Methods("GET")
+// RegisterUserRoutes registers the user-related endpoints
+func RegisterUserRoutes(router *mux.Router) {
+	router.HandleFunc("/users", controllers.ListUsersHandler).Methods("GET")
+
+	// Secure route with JWT authentication
+	router.Handle("/secure/users", middleware.AuthMiddleware(http.HandlerFunc(controllers.ListUsersHandler))).Methods("GET")
 }

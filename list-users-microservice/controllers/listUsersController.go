@@ -1,26 +1,19 @@
 package controllers
 
 import (
-    "encoding/json"
-    "net/http"
-    "user-microservice/services"
+	"encoding/json"
+	"net/http"
+
+	"list-users-microservice/services"
 )
 
-type UserController struct {
-    Service *services.UserService
-}
+// ListUsersHandler handles user listing requests
+func ListUsersHandler(w http.ResponseWriter, r *http.Request) {
+	users, err := services.GetAllUsers()
+	if err != nil {
+		http.Error(w, "Error retrieving users", http.StatusInternalServerError)
+		return
+	}
 
-func NewUserController(service *services.UserService) *UserController {
-    return &UserController{Service: service}
-}
-
-func (c *UserController) GetUsersHandler(w http.ResponseWriter, r *http.Request) {
-    users, err := c.Service.GetAllUsers()
-    if err != nil {
-        http.Error(w, "Error al obtener usuarios", http.StatusInternalServerError)
-        return
-    }
-
-    w.WriteHeader(http.StatusOK)
-    json.NewEncoder(w).Encode(users)
+	json.NewEncoder(w).Encode(users)
 }
