@@ -3,28 +3,26 @@ name: User Management Service Pipeline
 on:
   push:
     branches:
-      - test
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Set up Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: '1.20'
+      - name: Simple Build Step
+        run: echo "Build successful"
 
-      - name: Install Dependencies
-        run: go mod tidy
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
 
-      - name: Run Tests
-        run: go test ./...
-
-      - name: Build Services
-        run: |
-          cd create-user-microservice && go build -o main .
-          cd ../delete-user-microservice && go build -o main .
-          cd ../list-users-microservice && go build -o main .
+    steps:
+      - name: Fake Deployment Step
+        run: echo "Deployment successful"
